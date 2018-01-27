@@ -10,9 +10,11 @@ def write_results(channel):
 
 
 @bot.message_handler(commands=['start'])
+def send_start(message):
     bot.reply_to(message, 'Hi, send me some channels with the /add command')
 
 @bot.message_handler(commands=['help'])
+def send_help(message):
     bot.reply_to(message, "Check me out, I'm open-source")
 
 @bot.message_handler(commands=['add'])
