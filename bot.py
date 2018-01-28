@@ -1,5 +1,6 @@
 import telebot
 import config
+import replies
 
 
 bot = telebot.TeleBot(token=config.token) # initialize bot
@@ -23,18 +24,26 @@ def is_length(message):
     else:
         return False
 
+def is_channel(message):
+    """ Check if message is a channel name """
+    if ('@' == message[0]) and (message[-3:] != 'bot') and (message != '@'):
+        return True
+    else:
+        return False
+
+
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
     """ Sends start message"""
-    bot.reply_to(message, 'Hi, send me some channels with the <code>/add</code> command. For \
-example:\n\n<code>/add @techmind</code>', parse_mode='HTML')
+    bot.reply_to(message, replies.start_reply, parse_mode='HTML')
+
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
     """ Sends help message """
-    bot.reply_to(message, "Check me out; I'm \
-<a href='https://github.com/karipov/cross-prom'>open-source</a>.", parse_mode='HTML', disable_web_page_preview=True)
+    bot.reply_to(message, replies.help_reply, parse_mode='HTML', disable_web_page_preview=True)
+
 
 @bot.message_handler(commands=['add'])
 def start_message(message):
@@ -42,12 +51,18 @@ def start_message(message):
     channel = ' '.join(message.text.split()[1:])
 
     if is_length(channel) and channel: # only if message is of certain length and not empty
-        bot.reply_to(message, '{} was successfully added to the list!'.format(channel))
-        write_results(channel)
+
+        if is_channel(channel):
+            bot.reply_to(message, replies.success_add.format(channel))
+            write_results(channel)
+        else:
+            bot.reply_to(message, replies.enter_chan)
+
     elif not channel: # if empty
-        bot.reply_to(message, 'Please enter a channel')
+        bot.reply_to(message, replies.enter_chan)
     else:
-        bot.reply_to(message, 'The name is too long :(')
+        bot.reply_to(message, replies.long_name)
+
 
 @bot.message_handler(commands=['list'])
 def show_list(message):
@@ -60,10 +75,11 @@ def show_list(message):
             if ready_list: # if the text file is not empty...
                 bot.reply_to(message, ready_list)
             else:
-                bot.reply_to(message, 'No channels are available')
+                bot.reply_to(message, replies.no_chans)
 
     else:
-        bot.reply_to(message, 'This is an admin-only command')
+        bot.reply_to(message, replies.admin_only)
+
 
 @bot.message_handler(commands=['clear'])
 def clear_list(message):
@@ -72,15 +88,19 @@ def clear_list(message):
     with open('base.txt', 'w') as list:
         list.seek(0) # goes to the beginning of the file to truncate it
         list.truncate()
-    bot.reply_to(message, 'The list has been truncated')
+    bot.reply_to(message, replies.trunc_list)
+
 
 @bot.message_handler(commands=['stop'])
 def stop_polling(message):
     """ Stops polling when an admin types /stop """
 
     if is_admin:
-        bot.reply_to(message, 'Bot has been terminated')
+        bot.reply_to(message, replies.terminate_bot)
         bot.stop_polling()
     else:
-        bot.reply_to(message, "This is an admin-only command")
+        bot.reply_to(message, replies.admin_only)
+
+
+
 bot.polling(none_stop=True, timeout=20)
