@@ -2,6 +2,8 @@ import telebot
 import config
 import replies
 
+min_channel_size = 0
+
 
 bot = telebot.TeleBot(token=config.token) # initialize bot
 
@@ -31,7 +33,32 @@ def is_channel(message):
     else:
         return False
 
+def channel_is_size(channel):
+    """Checks if a channel is of set size (see: /setsize handler)"""
+    try:
+        channel_number = bot.get_chat_members_count(channel)
+    except Exception:
+        return False
 
+    if channel_number >= min_channel_size:
+        return True
+    else:
+        return False
+
+
+@bot.message_handler(commands=['setsize'])
+def set_size(message):
+    """ Sets minimum size for channels to enter """
+    global min_channel_size
+    temp_min_channel_size = ' '.join(message.text.split()[1:])
+
+    if is_admin(message) and temp_min_channel_size:
+        min_channel_size = int(temp_min_channel_size)
+        bot.reply_to(message, replies.size_set.format(min_channel_size))
+    elif not temp_min_channel_size:
+        bot.reply_to(message, replies.size_set_error)
+    else:
+        bot.reply_to(message, replies.admin_only)
 
 @bot.message_handler(commands=['start'])
 def send_start(message):
@@ -53,8 +80,13 @@ def start_message(message):
     if is_length(channel) and channel: # only if message is of certain length and not empty
 
         if is_channel(channel):
-            bot.reply_to(message, replies.success_add.format(channel))
-            write_results(channel)
+
+            if channel_is_size(channel):
+                bot.reply_to(message, replies.success_add.format(channel))
+                write_results(channel)
+            else:
+                bot.reply_to(message, replies.small_chan.format(min_channel_size))
+
         else:
             bot.reply_to(message, replies.enter_chan)
 
@@ -84,18 +116,21 @@ def show_list(message):
 @bot.message_handler(commands=['clear'])
 def clear_list(message):
     """ Truncates the document base.txt """
-
-    with open('base.txt', 'w') as list:
-        list.seek(0) # goes to the beginning of the file to truncate it
-        list.truncate()
-    bot.reply_to(message, replies.trunc_list)
+    
+    if is_admin(message):
+        with open('base.txt', 'w') as list:
+            list.seek(0) # goes to the beginning of the file to truncate it
+            list.truncate()
+        bot.reply_to(message, replies.trunc_list)
+    else:
+        bot.reply_to(message, replies.admin_only)
 
 
 @bot.message_handler(commands=['stop'])
 def stop_polling(message):
     """ Stops polling when an admin types /stop """
 
-    if is_admin:
+    if is_admin(message):
         bot.reply_to(message, replies.terminate_bot)
         bot.stop_polling()
     else:
