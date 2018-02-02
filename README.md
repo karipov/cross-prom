@@ -23,7 +23,5 @@ This is a list of commands that can be used with the bot
 ### Administrator
 `/list` - display the channel list  
 `/clear` - truncate the list  
-`/setlimit` - set the minimum limit for the mnumber of channels  
+`/setlimit` - set the minimum limit for the number of channels  
 `/stop` - stop polling the bot  
-
-
