@@ -2,7 +2,7 @@ import telebot
 import config
 import replies
 
-min_channel_size = 0
+min_channel_size = 0 # global variable
 
 
 bot = telebot.TeleBot(token=config.token) # initialize bot
@@ -14,6 +14,7 @@ def write_results(channel):
 
 def is_admin(message):
     """ Checks if a user is within the list of admins (i.e. my id) """
+
     if message.from_user.id == config.CHAT_ID or message.chat.id == config.CHAT_ID:
         return True
     else:
@@ -21,24 +22,30 @@ def is_admin(message):
 
 def is_length(message):
     """ Checks if message is of set length """
+
     if len(message) <= 25:
         return True
     else:
         return False
 
 def is_channel(message):
-    """ Check if message is a channel name """
-    if ('@' == message[0]) and (message[-3:] != 'bot') and (message != '@'):
+    """Checks if message is a channel name """
+    try:
+        # because 'message' argument is passed as a string without the @ sign, we
+        # add this sign with .format()
+        name_or_not = bot.get_chat("@{}".format(message)).type
+    except Exception:
+        return False
+
+    if name_or_not == "channel":
         return True
     else:
         return False
 
+
 def channel_is_size(channel):
     """Checks if a channel is of set size (see: /setsize handler)"""
-    try:
-        channel_number = bot.get_chat_members_count(channel)
-    except Exception:
-        return False
+    channel_number = bot.get_chat_members_count(channel)
 
     if channel_number >= min_channel_size:
         return True
@@ -91,7 +98,7 @@ def start_message(message):
             bot.reply_to(message, replies.enter_chan)
 
     elif not channel: # if empty
-        bot.reply_to(message, replies.enter_chan)
+        bot.reply_to(message, replies.enter_chan_error)
     else:
         bot.reply_to(message, replies.long_name)
 
