@@ -57,6 +57,7 @@ def channel_is_size(channel):
 def set_size(message):
     """ Sets minimum size for channels to enter """
     global min_channel_size
+    # just to check in if statements
     temp_min_channel_size = ' '.join(message.text.split()[1:])
 
     if is_admin(message) and temp_min_channel_size:
@@ -82,25 +83,30 @@ def send_help(message):
 @bot.message_handler(commands=['add'])
 def start_message(message):
     """ Appends channels to document base.txt """
-    channel = ' '.join(message.text.split()[1:])
+    message_words = message.text.split()
 
-    if is_length(channel) and channel: # only if message is of certain length and not empty
+    channel = ' '.join(message_words[1:2])
+    description = ' '.join(message_words[2:])
 
-        if is_channel(channel):
+    # only if messages are not empty and description has a hyphen
+    if channel and (description and description[0] == '-'):
+
+        if is_channel(channel) and is_length(description):
 
             if channel_is_size(channel):
                 bot.reply_to(message, replies.success_add.format(channel))
-                write_results(channel)
+                write_results(' '.join(message_words[1:]))
             else:
                 bot.reply_to(message, replies.small_chan.format(min_channel_size))
 
         else:
             bot.reply_to(message, replies.enter_chan)
 
-    elif not channel: # if empty
-        bot.reply_to(message, replies.enter_chan_error)
+    elif not description and channel:
+        bot.reply_to(message, replies.enter_desc_error)
     else:
-        bot.reply_to(message, replies.long_name)
+        bot.reply_to(message, replies.enter_addmessage_error) # if empty
+
 
 
 @bot.message_handler(commands=['list'])
@@ -123,7 +129,7 @@ def show_list(message):
 @bot.message_handler(commands=['clear'])
 def clear_list(message):
     """ Truncates the document base.txt """
-    
+
     if is_admin(message):
         with open('base.txt', 'w') as list:
             list.seek(0) # goes to the beginning of the file to truncate it
