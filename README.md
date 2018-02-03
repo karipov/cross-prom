@@ -1,5 +1,6 @@
 # cross-prom
 cross-prom is a service for cross-promotions in telegram. It can collect channels into a list, and output all of them into one message. It has a system of filtering.
+IN DEVELOPMENT
 
 
 ## Installation
@@ -18,10 +19,10 @@ This is a list of commands that can be used with the bot
 `/help` - display link to source code
 
 ### User:
-`/add` - add a channel
+`/add @CHANNELNAME - DESCRIPTION` - add a channel
 
 ### Administrator
 `/list` - display the channel list  
 `/clear` - truncate the list  
-`/setlimit` - set the minimum limit for the number of channels  
+`/setsize INTEGER` - set the minimum limit for the number of channels  
 `/stop` - stop polling the bot  
