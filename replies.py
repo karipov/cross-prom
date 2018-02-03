@@ -1,4 +1,4 @@
-start_reply = "Hi, send me some channels with the <code>/add</code> command. For example:\n\n<code>/add @techmind</code>"
+start_reply = "Hi, send me some channels with the <code>/add</code> command. For example:\n\n<code>/add @techmind - all about tech</code>"
 help_reply = "Check me out; I'm <a href='https://github.com/karipov/cross-prom'>open-source</a>."
 
 #SERVICE RESPONSES
@@ -14,4 +14,5 @@ no_chans = "No channels are available."
 admin_only = "This is an admin-only command."
 small_chan = "Your channel is too small. The minimum size is {}."
 size_set_error = "Please enter a number after this command."
-enter_chan_error = "Please enter a channel name after this command."
+enter_desc_error = "Please enter a description after this command."
+enter_addmessage_error = "Please enter a channel name and description after this command. Click /start for an example."
