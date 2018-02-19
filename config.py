@@ -1,3 +1,0 @@
-token='TOKEN HERE'
-
-CHAT_ID = ADMIN_ID
