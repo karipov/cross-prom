@@ -7,6 +7,7 @@ min_channel_size = 0 # global variable
 
 bot = telebot.TeleBot(token=config.token) # initialize bot
 
+
 def write_results(channel):
     """ Writes channel names to a file """
     with open('base.txt', 'a') as list:
@@ -53,6 +54,27 @@ def channel_is_size(channel):
         return False
 
 
+def gen_response(channel, description, message_words):
+    if not channel:
+        return replies.enter_addmessage_error
+
+    if not description:
+        return replies.enter_desc_error
+
+    if description[0] != '-':
+        return replies.enter_addmessage_error
+
+    if not (is_channel(channel) and is_length(description)):
+        return replies.enter_chan
+
+    if not channel_is_size(channel):
+        return replies.small_chan.format(min_channel_size)
+
+    write_results(' '.join(message_words[1:]))
+    return replies.success_add.format(channel)
+
+
+
 @bot.message_handler(commands=['setsize'])
 def set_size(message):
     """ Sets minimum size for channels to enter """
@@ -88,24 +110,7 @@ def start_message(message):
     channel = ' '.join(message_words[1:2])
     description = ' '.join(message_words[2:])
 
-    # only if messages are not empty and description has a hyphen
-    if channel and (description and description[0] == '-'):
-
-        if is_channel(channel) and is_length(description):
-
-            if channel_is_size(channel):
-                bot.reply_to(message, replies.success_add.format(channel))
-                write_results(' '.join(message_words[1:]))
-            else:
-                bot.reply_to(message, replies.small_chan.format(min_channel_size))
-
-        else:
-            bot.reply_to(message, replies.enter_chan)
-
-    elif not description and channel:
-        bot.reply_to(message, replies.enter_desc_error)
-    else:
-        bot.reply_to(message, replies.enter_addmessage_error) # if empty
+    bot.reply_to(message, gen_response(channel, description, message_words))
 
 
 
