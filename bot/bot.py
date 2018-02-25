@@ -1,11 +1,34 @@
+import os
 import telebot
+from flask import Flask, request
 import config
 import replies
+
 
 min_channel_size = 0 # global variable
 
 
 bot = telebot.TeleBot(token=config.token) # initialize bot
+server = Flast(__name__)
+
+@server.route("/{}".format(config.token), methods=['POST'])
+def getMessage():
+    bot.process_new_updates(
+        [telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    return "!", 200
+
+
+@server.route("/")
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(
+        url="https://warm-ravine-16681.herokuapp.com/{}".format(config.token))
+    return "!", 200
+
+
+def main():
+    webhook()
+    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
 
 
 def write_results(channel):
@@ -155,5 +178,4 @@ def stop_polling(message):
         bot.reply_to(message, replies.admin_only)
 
 
-
-bot.polling(none_stop=True, timeout=20)
+main()
