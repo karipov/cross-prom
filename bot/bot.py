@@ -1,34 +1,29 @@
 import os
+from os import environ
 import telebot
 from flask import Flask, request
 import config
 import replies
 
+bot = telebot.TeleBot(config.TOKEN)
+server = Flask(__name__)
 
-min_channel_size = 0 # global variable
+min_channel_size = 0 # global variabl
 
-
-bot = telebot.TeleBot(token=config.token) # initialize bot
-server = Flast(__name__)
-
-@server.route("/{}".format(config.token), methods=['POST'])
+@server.route('/' + config.TOKEN, methods=['POST'])
 def getMessage():
-    bot.process_new_updates(
-        [telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
+    bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
     return "!", 200
 
 
 @server.route("/")
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(
-        url="https://warm-ravine-16681.herokuapp.com/{}".format(config.token))
+    bot.set_webhook(url='https://warm-mesa-59194.herokuapp.com/' + config.TOKEN)
     return "!", 200
 
 
-def main():
-    webhook()
-    server.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+
 
 
 def write_results(channel):
@@ -39,7 +34,7 @@ def write_results(channel):
 def is_admin(message):
     """ Checks if a user is within the list of admins (i.e. my id) """
 
-    if message.from_user.id == config.CHAT_ID or message.chat.id == config.CHAT_ID:
+    if (message.from_user.id in config.CHAT_ID) or (message.chat.id in config.CHAT_ID):
         return True
     else:
         return False
@@ -122,7 +117,7 @@ def send_start(message):
 @bot.message_handler(commands=['help'])
 def send_help(message):
     """ Sends help message """
-    bot.reply_to(message, replies.help_reply, parse_mode='HTML', disable_web_page_preview=True)
+    bot.reply_to(message, replies.help_reply, parse_mode='HTML')
 
 
 @bot.message_handler(commands=['add'])
@@ -167,15 +162,20 @@ def clear_list(message):
         bot.reply_to(message, replies.admin_only)
 
 
-@bot.message_handler(commands=['stop'])
-def stop_polling(message):
-    """ Stops polling when an admin types /stop """
+# @bot.message_handler(commands=['ban'])
+# def ban_user(message):
+#     """ Bans users """
+#
+#     user_id = message.reply_to_message.from_user.id
+#     username = message.reply_to_message.from_user.username
+#
+#     if is_admin(message):
+#         bot.kick_chat_member(chat_id=message.chat.id, user_id=message.from_user.id, until_date=1)
+#         bot.reply_to(message, replies.ban_member.format(username))
+#     else:
+#         bot.reply_to(replies.admin_only)
 
-    if is_admin(message):
-        bot.reply_to(message, replies.terminate_bot)
-        bot.stop_polling()
-    else:
-        bot.reply_to(message, replies.admin_only)
 
 
-main()
+if __name__ == "__main__":
+    server.run(host="0.0.0.0", port=int(environ.get('PORT', 5000)))
