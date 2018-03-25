@@ -1,6 +1,7 @@
 # Custom
 config.py
 base.txt
+flask_app/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

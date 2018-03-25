@@ -1,4 +1,3 @@
-import os
 from os import environ
 import telebot
 from flask import Flask, request
