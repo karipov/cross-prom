@@ -25,4 +25,4 @@ This is a list of commands that can be used with the bot
 `/list` - display the channel list  
 `/clear` - truncate the list  
 `/setsize INTEGER` - set the minimum limit for the number of channels  
-`/stop` - stop polling the bot
+`/stop` - stop polling the bot  
